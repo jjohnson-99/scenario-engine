@@ -1,0 +1,7 @@
+{
+    "name": "scenario-engine",
+    "version": "0.1.0",
+    "dependencies": [
+        "catch2"
+    ]
+}

@@ -1,0 +1,64 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# Testing
+Testing/
+
+# IDEs
+.vscode/
+.idea/
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj*
+*.vc.db
+*.VC.db
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Executables and libraries
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Debug symbols
+*.pdb
+
+# Coverage
+coverage/
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+
+# Sanitizers
+*.log
+
+# vcpkg installed artifacts
+installed/
+
+# Temporary files
+tmp/
+temp/
