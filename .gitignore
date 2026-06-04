@@ -62,3 +62,6 @@ installed/
 # Temporary files
 tmp/
 temp/
+
+# output tests
+results.csv
