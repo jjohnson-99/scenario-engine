@@ -1,11 +1,14 @@
 #include <array>
+#include <filesystem>
 #include <format>
 #include <print>
+#include <vector>
 
 #include "data/CsvLoader.hpp"
 #include "forecasting/MovingAverageForecaster.hpp"
 #include "forecasting/ExponentialSmoothingForecaster.hpp"
 #include "evaluation/Benchmark.hpp"
+#include "evaluation/CsvExporter.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -40,7 +43,7 @@ int main(int argc, char* argv[])
 
     auto table = benchmark.run(models, series, horizons);
 
-    // Build header
+    // Print multi-horizon RMSE table
     std::string header = std::format("{:<30}", "Model");
     for (const auto& row : table.front().by_horizon)
     {
@@ -58,6 +61,25 @@ int main(int argc, char* argv[])
         }
         std::println("{}", line);
     }
+
+    std::println("");
+
+    // Flatten all results and export to CSV
+    std::vector<ModelEvaluationResult> flat;
+    for (const auto& row : table)
+    {
+        for (const auto& r : row.by_horizon)
+        {
+            flat.push_back(r);
+        }
+    }
+
+    const std::filesystem::path csv_path{"results.csv"};
+
+    CsvExporter exporter;
+    exporter.write(flat, csv_path);
+
+    std::println("Results written to {}", csv_path.string());
 
     return 0;
 }

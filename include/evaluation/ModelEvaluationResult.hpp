@@ -10,6 +10,8 @@ struct ModelEvaluationResult
     double      rmse{};
     double      bias{};
     double      max_error{};
+    double      mape{};        // mean absolute percentage error (%), NaN if all actuals are zero
+    double      error_std{};   // population std dev of signed errors
     std::size_t evaluation_count{};
     std::size_t horizon{};
 };

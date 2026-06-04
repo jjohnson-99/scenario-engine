@@ -39,6 +39,7 @@ set(
     src/forecasting/ExponentialSmoothingForecaster.cpp
     src/evaluation/Backtester.cpp
     src/evaluation/Benchmark.cpp
+    src/evaluation/CsvExporter.cpp
     src/evaluation/Metrics.cpp
 )
 
@@ -115,6 +116,7 @@ add_executable(
     tests/ExponentialSmoothingForecasterTests.cpp
     tests/BacktesterTests.cpp
     tests/BenchmarkTests.cpp
+    tests/CsvExporterTests.cpp
     tests/MultiHorizonBenchmarkTests.cpp
 )
 
