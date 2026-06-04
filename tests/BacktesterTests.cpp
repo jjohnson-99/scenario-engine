@@ -2,7 +2,7 @@
 #include <catch2/catch_approx.hpp>
 
 #include "forecasting/MovingAverageForecaster.hpp"
-#include "forecasting/Backtester.hpp"
+#include "evaluation/Backtester.hpp"
 #include "data/TimeSeries.hpp"
 
 using Catch::Approx;
@@ -21,11 +21,14 @@ TEST_CASE("Backtester produces forecasts")
     Backtester backtester;
 
     auto result =
-        backtester.run(model, ts);
+        backtester.evaluate(model, ts);
 
-    REQUIRE(result.forecasts > 0);
+    REQUIRE(result.evaluation_count > 0);
     REQUIRE(result.mae == Approx(0.0));
+    REQUIRE(result.bias == Approx(0.0));
+    REQUIRE(result.max_error == Approx(0.0));
     REQUIRE(result.horizon == 1);
+    REQUIRE(result.model_name == "MovingAverage(3)");
 }
 
 TEST_CASE("Backtester horizon=2 validates against 2-steps-ahead actuals")
@@ -47,9 +50,9 @@ TEST_CASE("Backtester horizon=2 validates against 2-steps-ahead actuals")
 
     Backtester backtester;
 
-    auto result = backtester.run(model, ts);
+    auto result = backtester.evaluate(model, ts);
 
-    REQUIRE(result.forecasts > 0);
+    REQUIRE(result.evaluation_count > 0);
     REQUIRE(result.horizon == 2);
-    REQUIRE(result.mae > 0.0);  // non-zero error confirms 2-step comparison
+    REQUIRE(result.mae > 0.0);
 }

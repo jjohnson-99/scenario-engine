@@ -1,5 +1,6 @@
 #include "forecasting/ExponentialSmoothingForecaster.hpp"
 
+#include <format>
 #include <stdexcept>
 
 ExponentialSmoothingForecaster::ExponentialSmoothingForecaster(
@@ -35,6 +36,16 @@ ForecastResult ExponentialSmoothingForecaster::forecast(const TimeSeries& series
     }
 
     return {smoothed, horizon_};
+}
+
+std::string_view ExponentialSmoothingForecaster::name() const
+{
+    return "ExponentialSmoothing";
+}
+
+std::string ExponentialSmoothingForecaster::label() const
+{
+    return std::format("ExponentialSmoothing({:.2f})", alpha_);
 }
 
 std::size_t ExponentialSmoothingForecaster::minimum_observations() const

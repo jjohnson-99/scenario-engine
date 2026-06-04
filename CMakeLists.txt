@@ -35,10 +35,11 @@ set(
     src/data/TimeSeries.cpp
     src/data/CsvLoader.cpp
     src/config/ConfigLoader.cpp
-    src/forecasting/Backtester.cpp
     src/forecasting/MovingAverageForecaster.cpp
     src/forecasting/ExponentialSmoothingForecaster.cpp
-    src/forecasting/Metrics.cpp
+    src/evaluation/Backtester.cpp
+    src/evaluation/Benchmark.cpp
+    src/evaluation/Metrics.cpp
 )
 
 # --------------------------------------------------
@@ -113,6 +114,8 @@ add_executable(
     tests/MovingAverageForecasterTests.cpp
     tests/ExponentialSmoothingForecasterTests.cpp
     tests/BacktesterTests.cpp
+    tests/BenchmarkTests.cpp
+    tests/MultiHorizonBenchmarkTests.cpp
 )
 
 target_link_libraries(

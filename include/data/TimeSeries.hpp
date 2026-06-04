@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "data/Observation.hpp"
-#include "data/SummaryStatistics.hpp"
+#include "statistics/SummaryStatistics.hpp"
 
 class TimeSeries
 {

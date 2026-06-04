@@ -1,5 +1,6 @@
 #include "forecasting/MovingAverageForecaster.hpp"
 
+#include <format>
 #include <stdexcept>
 
 MovingAverageForecaster::MovingAverageForecaster(
@@ -42,6 +43,16 @@ ForecastResult MovingAverageForecaster::forecast(const TimeSeries& series) const
     }
 
     return {sum / static_cast<double>(window_), horizon_};
+}
+
+std::string_view MovingAverageForecaster::name() const
+{
+    return "MovingAverage";
+}
+
+std::string MovingAverageForecaster::label() const
+{
+    return std::format("MovingAverage({})", window_);
 }
 
 std::size_t MovingAverageForecaster::minimum_observations() const
