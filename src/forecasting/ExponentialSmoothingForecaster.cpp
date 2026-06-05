@@ -21,7 +21,7 @@ ExponentialSmoothingForecaster::ExponentialSmoothingForecaster(
     }
 }
 
-ForecastResult ExponentialSmoothingForecaster::forecast(const TimeSeries& series) const
+ForecastResult ExponentialSmoothingForecaster::forecast(const TimeSeriesView& series) const
 {
     if (series.size() == 0)
     {
@@ -35,7 +35,7 @@ ForecastResult ExponentialSmoothingForecaster::forecast(const TimeSeries& series
         smoothed = alpha_ * series.value_at(i) + (1.0 - alpha_) * smoothed;
     }
 
-    return {smoothed, horizon_};
+    return {.mean = smoothed, .variance = 0.0, .horizon = horizon_};
 }
 
 std::string_view ExponentialSmoothingForecaster::name() const

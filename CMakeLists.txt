@@ -41,6 +41,8 @@ set(
     src/evaluation/Benchmark.cpp
     src/evaluation/CsvExporter.cpp
     src/evaluation/Metrics.cpp
+    src/evaluation/ResidualAnalyzer.cpp
+    src/evaluation/ResidualGenerator.cpp
 )
 
 # --------------------------------------------------
@@ -118,6 +120,9 @@ add_executable(
     tests/BenchmarkTests.cpp
     tests/CsvExporterTests.cpp
     tests/MultiHorizonBenchmarkTests.cpp
+    tests/ResidualAnalyzerTests.cpp
+    tests/ResidualSeriesTests.cpp
+    tests/ResidualGeneratorTests.cpp
 )
 
 target_link_libraries(

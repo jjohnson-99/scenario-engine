@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "data/Observation.hpp"
+#include "data/TimeSeriesView.hpp"
 #include "statistics/SummaryStatistics.hpp"
 
 class TimeSeries
@@ -26,6 +27,10 @@ public:
     SummaryStatistics summary() const;
 
     TimeSeries first_n(std::size_t n) const;
+
+    TimeSeriesView view() const;
+
+    TimeSeriesView first_n_view(std::size_t n) const;
 
 private:
     std::vector<Observation> data_;

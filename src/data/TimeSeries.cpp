@@ -123,3 +123,14 @@ TimeSeries TimeSeries::first_n(std::size_t n) const
 
     return result;
 }
+
+TimeSeriesView TimeSeries::view() const
+{
+    return TimeSeriesView{data_};
+}
+
+TimeSeriesView TimeSeries::first_n_view(std::size_t n) const
+{
+    n = std::min(n, data_.size());
+    return TimeSeriesView{std::span<const Observation>{data_.data(), n}};
+}

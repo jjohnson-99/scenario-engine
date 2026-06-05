@@ -22,7 +22,7 @@ MovingAverageForecaster::MovingAverageForecaster(
     }
 }
 
-ForecastResult MovingAverageForecaster::forecast(const TimeSeries& series) const
+ForecastResult MovingAverageForecaster::forecast(const TimeSeriesView& series) const
 {
     const auto& observations = series.observations();
 
@@ -42,7 +42,7 @@ ForecastResult MovingAverageForecaster::forecast(const TimeSeries& series) const
         sum += observations[i].value;
     }
 
-    return {sum / static_cast<double>(window_), horizon_};
+    return {.mean = sum / static_cast<double>(window_), .variance = 0.0, .horizon = horizon_};
 }
 
 std::string_view MovingAverageForecaster::name() const

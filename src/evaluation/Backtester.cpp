@@ -1,9 +1,9 @@
 #include "evaluation/Backtester.hpp"
+#include "evaluation/ResidualGenerator.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <stdexcept>
 
 ModelEvaluationResult Backtester::evaluate(
     const Forecaster& model,
@@ -17,10 +17,8 @@ ModelEvaluationResult Backtester::evaluate(
     const TimeSeries& series,
     std::size_t horizon) const
 {
-    if (series.size() < model.minimum_observations() + horizon)
-    {
-        throw std::runtime_error("Insufficient data for backtest");
-    }
+    ResidualGenerator generator;
+    ResidualSeries rs = generator.generate(model, series, horizon);
 
     double abs_error_sum     = 0.0;
     double squared_error_sum = 0.0;
@@ -31,30 +29,25 @@ ModelEvaluationResult Backtester::evaluate(
     std::size_t evaluation_count = 0;
     std::size_t ape_count        = 0;
 
-    const auto start = model.minimum_observations();
-    for (std::size_t t = start; t + horizon <= series.size(); ++t)
+    for (const auto& r : rs.residuals())
     {
-        TimeSeries history = series.first_n(t);
+        const double abs_e = std::abs(r.error);
 
-        double prediction = model.forecast(history).value;
-        double actual     = series.value_at(t + horizon - 1);
-        double error      = actual - prediction;
+        abs_error_sum     += abs_e;
+        squared_error_sum += r.error * r.error;
+        signed_error_sum  += r.error;
+        max_abs_error      = std::max(max_abs_error, abs_e);
 
-        abs_error_sum     += std::abs(error);
-        squared_error_sum += error * error;
-        signed_error_sum  += error;
-        max_abs_error      = std::max(max_abs_error, std::abs(error));
-
-        if (actual != 0.0)
+        if (r.actual != 0.0)
         {
-            ape_sum += std::abs(error) / std::abs(actual);
+            ape_sum += abs_e / std::abs(r.actual);
             ++ape_count;
         }
 
         ++evaluation_count;
     }
 
-    const double n     = static_cast<double>(evaluation_count);
+    const double n      = static_cast<double>(evaluation_count);
     const double mean_e = signed_error_sum / n;
 
     return {

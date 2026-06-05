@@ -3,7 +3,7 @@
 #include <string>
 #include <string_view>
 
-#include "data/TimeSeries.hpp"
+#include "data/TimeSeriesView.hpp"
 #include "forecasting/ForecastResult.hpp"
 
 class Forecaster
@@ -15,7 +15,7 @@ public:
 
     virtual std::string label() const = 0;
 
-    virtual ForecastResult forecast(const TimeSeries& series) const = 0;
+    virtual ForecastResult forecast(const TimeSeriesView& series) const = 0;
 
     virtual std::size_t minimum_observations() const = 0;
 

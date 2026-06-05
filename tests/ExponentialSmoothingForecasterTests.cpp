@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
 
+#include "data/TimeSeries.hpp"
 #include "forecasting/ExponentialSmoothingForecaster.hpp"
 
 using Catch::Approx;
@@ -16,7 +17,7 @@ TEST_CASE("Constant series")
     ExponentialSmoothingForecaster model(0.5);
 
     REQUIRE(
-        model.forecast(ts).value == Approx(100.0));
+        model.forecast(ts.view()).mean == Approx(100.0));
 }
 
 TEST_CASE("Invalid alpha")
@@ -32,5 +33,5 @@ TEST_CASE("ExponentialSmoothingForecaster Empty series")
     ExponentialSmoothingForecaster model(0.5);
 
     REQUIRE_THROWS(
-        model.forecast(ts));
+        model.forecast(ts.view()));
 }

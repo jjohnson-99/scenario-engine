@@ -4,6 +4,7 @@
 
 struct ForecastResult
 {
-    double value{};
+    double      mean{};
+    double      variance{};
     std::size_t horizon{1};
 };

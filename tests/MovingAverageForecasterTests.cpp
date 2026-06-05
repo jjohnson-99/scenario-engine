@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
 
+#include "data/TimeSeries.hpp"
 #include "forecasting/MovingAverageForecaster.hpp"
 
 using Catch::Approx;
@@ -16,7 +17,7 @@ TEST_CASE("Moving average forecast")
     MovingAverageForecaster model(3);
 
     REQUIRE(
-        model.forecast(ts).value == Approx(110.0)
+        model.forecast(ts.view()).mean == Approx(110.0)
     );
 }
 
@@ -31,7 +32,7 @@ TEST_CASE("Window of one")
     MovingAverageForecaster model(1);
 
     REQUIRE(
-        model.forecast(ts).value == Approx(120.0)
+        model.forecast(ts.view()).mean == Approx(120.0)
     );
 }
 
@@ -45,7 +46,7 @@ TEST_CASE("Insufficient observations")
     MovingAverageForecaster model(3);
 
     REQUIRE_THROWS(
-        model.forecast(ts)
+        model.forecast(ts.view())
     );
 }
 
@@ -59,5 +60,5 @@ TEST_CASE("ForecastResult carries horizon")
 
     MovingAverageForecaster model(3, 5);
 
-    REQUIRE(model.forecast(ts).horizon == 5);
+    REQUIRE(model.forecast(ts.view()).horizon == 5);
 }

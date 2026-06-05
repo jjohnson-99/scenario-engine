@@ -32,8 +32,8 @@ int main(int argc, char* argv[])
     MovingAverageForecaster ma(3);
     ExponentialSmoothingForecaster es(0.3);
 
-    std::println("Moving Average Forecast:        {}", ma.forecast(series).value);
-    std::println("Exponential Smoothing Forecast: {}", es.forecast(series).value);
+    std::println("Moving Average Forecast:        {}", ma.forecast(series.view()).mean);
+    std::println("Exponential Smoothing Forecast: {}", es.forecast(series.view()).mean);
     std::println("");
 
     std::array<const Forecaster*, 2> models{&ma, &es};

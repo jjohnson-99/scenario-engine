@@ -14,7 +14,7 @@ public:
 
     std::string label() const override;
 
-    ForecastResult forecast(const TimeSeries& series) const override;
+    ForecastResult forecast(const TimeSeriesView& series) const override;
 
     std::size_t minimum_observations() const override;
 
