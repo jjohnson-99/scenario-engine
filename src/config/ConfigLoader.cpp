@@ -2,8 +2,5 @@
 
 Config ConfigLoader::load(const std::string&)
 {
-    return {
-        .forecast_horizon = 30,
-        .num_scenarios = 1000
-    };
+    return {.forecast_horizon = 30, .num_scenarios = 1000};
 }

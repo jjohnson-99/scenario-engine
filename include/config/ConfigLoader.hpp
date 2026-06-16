@@ -7,7 +7,5 @@
 class ConfigLoader
 {
 public:
-    static Config load(
-        const std::string& path
-    );
+    static Config load(const std::string& path);
 };

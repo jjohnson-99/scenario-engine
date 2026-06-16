@@ -3,35 +3,27 @@
 #include <format>
 #include <stdexcept>
 
-ExponentialSmoothingForecaster::ExponentialSmoothingForecaster(
-    double alpha,
-    std::size_t horizon)
-    : alpha_(alpha)
-    , horizon_(horizon)
+ExponentialSmoothingForecaster::ExponentialSmoothingForecaster(double alpha, std::size_t horizon)
+    : alpha_(alpha), horizon_(horizon)
 {
-    if (alpha <= 0.0 || alpha > 1.0)
-    {
+    if (alpha <= 0.0 || alpha > 1.0) {
         throw std::invalid_argument("alpha must be in (0, 1]");
     }
 
-    if (horizon_ == 0)
-    {
-        throw std::invalid_argument(
-            "Forecast horizon must be positive");
+    if (horizon_ == 0) {
+        throw std::invalid_argument("Forecast horizon must be positive");
     }
 }
 
 ForecastResult ExponentialSmoothingForecaster::forecast(const TimeSeriesView& series) const
 {
-    if (series.size() == 0)
-    {
+    if (series.size() == 0) {
         throw std::runtime_error("empty series");
     }
 
     double smoothed = series.value_at(0);
 
-    for (std::size_t i = 1; i < series.size(); ++i)
-    {
+    for (std::size_t i = 1; i < series.size(); ++i) {
         smoothed = alpha_ * series.value_at(i) + (1.0 - alpha_) * smoothed;
     }
 

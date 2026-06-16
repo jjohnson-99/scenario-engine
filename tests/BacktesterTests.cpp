@@ -11,8 +11,7 @@ TEST_CASE("Backtester produces forecasts")
 {
     TimeSeries ts;
 
-    for (int i = 0; i < 20; ++i)
-    {
+    for (int i = 0; i < 20; ++i) {
         ts.add({{}, 100.0});
     }
 
@@ -20,8 +19,7 @@ TEST_CASE("Backtester produces forecasts")
 
     Backtester backtester;
 
-    auto result =
-        backtester.evaluate(model, ts);
+    auto result = backtester.evaluate(model, ts);
 
     REQUIRE(result.evaluation_count > 0);
     REQUIRE(result.mae == Approx(0.0));
@@ -36,8 +34,7 @@ TEST_CASE("Backtester horizon=2 validates against 2-steps-ahead actuals")
     TimeSeries ts;
 
     // Ascending series: 100, 102, 104, ..., 138 (20 points, step 2)
-    for (int i = 0; i < 20; ++i)
-    {
+    for (int i = 0; i < 20; ++i) {
         ts.add({{}, 100.0 + 2.0 * i});
     }
 

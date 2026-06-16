@@ -1,7 +1,6 @@
 #pragma once
 
-struct SummaryStatistics
-{
+struct SummaryStatistics {
     double mean{};
     double variance{};
     double minimum{};

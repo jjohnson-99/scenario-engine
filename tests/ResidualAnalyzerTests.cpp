@@ -11,8 +11,7 @@ using Catch::Approx;
 static ResidualSeries make_series(std::initializer_list<double> errors)
 {
     ResidualSeries rs;
-    for (double e : errors)
-    {
+    for (double e : errors) {
         rs.add({.actual = 0.0, .predicted = -e, .error = e});
     }
     return rs;
@@ -25,8 +24,8 @@ TEST_CASE("Zero-error series yields all zeros")
     ResidualAnalyzer analyzer;
     auto stats = analyzer.analyze(rs);
 
-    REQUIRE(stats.mean_error        == Approx(0.0));
-    REQUIRE(stats.variance          == Approx(0.0));
+    REQUIRE(stats.mean_error == Approx(0.0));
+    REQUIRE(stats.variance == Approx(0.0));
     REQUIRE(stats.standard_deviation == Approx(0.0));
 }
 
@@ -41,8 +40,8 @@ TEST_CASE("Known errors yield correct statistics")
     ResidualAnalyzer analyzer;
     auto stats = analyzer.analyze(rs);
 
-    REQUIRE(stats.mean_error        == Approx(2.0));
-    REQUIRE(stats.variance          == Approx(2.0 / 3.0));
+    REQUIRE(stats.mean_error == Approx(2.0));
+    REQUIRE(stats.variance == Approx(2.0 / 3.0));
     REQUIRE(stats.standard_deviation == Approx(std::sqrt(2.0 / 3.0)));
 }
 
@@ -54,7 +53,7 @@ TEST_CASE("Symmetric errors yield zero mean")
     auto stats = analyzer.analyze(rs);
 
     REQUIRE(stats.mean_error == Approx(0.0));
-    REQUIRE(stats.variance   > 0.0);
+    REQUIRE(stats.variance > 0.0);
 }
 
 TEST_CASE("Empty series throws")

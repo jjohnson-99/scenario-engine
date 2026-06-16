@@ -8,9 +8,7 @@
 class TimeSeriesView
 {
 public:
-    explicit TimeSeriesView(std::span<const Observation> data)
-        : data_{data}
-    {}
+    explicit TimeSeriesView(std::span<const Observation> data) : data_{data} {}
 
     std::size_t size() const
     {

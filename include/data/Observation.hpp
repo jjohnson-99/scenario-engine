@@ -2,8 +2,7 @@
 
 #include <chrono>
 
-struct Observation
-{
+struct Observation {
     std::chrono::sys_days timestamp;
     double value{};
 };

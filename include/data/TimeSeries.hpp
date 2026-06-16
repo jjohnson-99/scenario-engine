@@ -35,4 +35,3 @@ public:
 private:
     std::vector<Observation> data_;
 };
-

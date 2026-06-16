@@ -24,7 +24,7 @@ TEST_CASE("ResidualSeries stores fields correctly")
 
     const auto& r = rs.residuals()[0];
 
-    REQUIRE(r.actual    == Approx(100.0));
+    REQUIRE(r.actual == Approx(100.0));
     REQUIRE(r.predicted == Approx(95.0));
-    REQUIRE(r.error     == Approx(5.0));
+    REQUIRE(r.error == Approx(5.0));
 }

@@ -12,8 +12,7 @@ TEST_CASE("ResidualGenerator::generate error equals actual minus predicted")
 {
     TimeSeries ts;
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         ts.add({{}, 100.0});
     }
 
@@ -22,8 +21,7 @@ TEST_CASE("ResidualGenerator::generate error equals actual minus predicted")
 
     auto rs = generator.generate(model, ts);
 
-    for (const auto& r : rs.residuals())
-    {
+    for (const auto& r : rs.residuals()) {
         REQUIRE(r.error == Approx(r.actual - r.predicted));
     }
 }
@@ -32,8 +30,7 @@ TEST_CASE("ResidualGenerator::generate count matches evaluate evaluation_count")
 {
     TimeSeries ts;
 
-    for (int i = 0; i < 15; ++i)
-    {
+    for (int i = 0; i < 15; ++i) {
         ts.add({{}, 100.0 + static_cast<double>(i)});
     }
 
@@ -42,7 +39,7 @@ TEST_CASE("ResidualGenerator::generate count matches evaluate evaluation_count")
     Backtester backtester;
 
     auto result = backtester.evaluate(model, ts);
-    auto rs     = generator.generate(model, ts);
+    auto rs = generator.generate(model, ts);
 
     REQUIRE(rs.size() == result.evaluation_count);
 }
@@ -51,8 +48,7 @@ TEST_CASE("ResidualGenerator::generate explicit horizon overload")
 {
     TimeSeries ts;
 
-    for (int i = 0; i < 20; ++i)
-    {
+    for (int i = 0; i < 20; ++i) {
         ts.add({{}, 100.0});
     }
 
@@ -63,8 +59,7 @@ TEST_CASE("ResidualGenerator::generate explicit horizon overload")
 
     REQUIRE(rs.size() > 0);
 
-    for (const auto& r : rs.residuals())
-    {
+    for (const auto& r : rs.residuals()) {
         REQUIRE(r.error == Approx(r.actual - r.predicted));
     }
 }

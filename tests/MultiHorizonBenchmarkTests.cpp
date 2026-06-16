@@ -26,7 +26,7 @@ TEST_CASE("Benchmark::run produces one row per model")
     ExponentialSmoothingForecaster es(0.5);
 
     std::array<const Forecaster*, 2> models{&ma, &es};
-    std::array<std::size_t, 3>       horizons{1, 2, 3};
+    std::array<std::size_t, 3> horizons{1, 2, 3};
 
     Benchmark benchmark;
 
@@ -42,7 +42,7 @@ TEST_CASE("Benchmark::run produces one column per horizon")
     MovingAverageForecaster ma(3);
 
     std::array<const Forecaster*, 1> models{&ma};
-    std::array<std::size_t, 4>       horizons{1, 2, 5, 10};
+    std::array<std::size_t, 4> horizons{1, 2, 5, 10};
 
     Benchmark benchmark;
 
@@ -58,15 +58,14 @@ TEST_CASE("Benchmark::run columns are sorted by horizon ascending")
     MovingAverageForecaster ma(3);
 
     std::array<const Forecaster*, 1> models{&ma};
-    std::array<std::size_t, 3>       horizons{5, 1, 3};
+    std::array<std::size_t, 3> horizons{5, 1, 3};
 
     Benchmark benchmark;
 
     auto table = benchmark.run(models, ts, horizons);
 
     const auto& cols = table[0].by_horizon;
-    for (std::size_t i = 1; i < cols.size(); ++i)
-    {
+    for (std::size_t i = 1; i < cols.size(); ++i) {
         REQUIRE(cols[i - 1].horizon < cols[i].horizon);
     }
 }
@@ -78,7 +77,7 @@ TEST_CASE("Benchmark::run model_label uses label() with parameters")
     MovingAverageForecaster ma(5);
 
     std::array<const Forecaster*, 1> models{&ma};
-    std::array<std::size_t, 1>       horizons{1};
+    std::array<std::size_t, 1> horizons{1};
 
     Benchmark benchmark;
 
@@ -94,14 +93,13 @@ TEST_CASE("Benchmark::run constant series gives zero RMSE at every horizon")
     MovingAverageForecaster ma(3);
 
     std::array<const Forecaster*, 1> models{&ma};
-    std::array<std::size_t, 3>       horizons{1, 2, 3};
+    std::array<std::size_t, 3> horizons{1, 2, 3};
 
     Benchmark benchmark;
 
     auto table = benchmark.run(models, ts, horizons);
 
-    for (const auto& r : table[0].by_horizon)
-    {
+    for (const auto& r : table[0].by_horizon) {
         REQUIRE(r.rmse == Approx(0.0));
     }
 }

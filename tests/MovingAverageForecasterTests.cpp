@@ -16,9 +16,7 @@ TEST_CASE("Moving average forecast")
 
     MovingAverageForecaster model(3);
 
-    REQUIRE(
-        model.forecast(ts.view()).mean == Approx(110.0)
-    );
+    REQUIRE(model.forecast(ts.view()).mean == Approx(110.0));
 }
 
 TEST_CASE("Window of one")
@@ -31,9 +29,7 @@ TEST_CASE("Window of one")
 
     MovingAverageForecaster model(1);
 
-    REQUIRE(
-        model.forecast(ts.view()).mean == Approx(120.0)
-    );
+    REQUIRE(model.forecast(ts.view()).mean == Approx(120.0));
 }
 
 TEST_CASE("Insufficient observations")
@@ -45,9 +41,7 @@ TEST_CASE("Insufficient observations")
 
     MovingAverageForecaster model(3);
 
-    REQUIRE_THROWS(
-        model.forecast(ts.view())
-    );
+    REQUIRE_THROWS(model.forecast(ts.view()));
 }
 
 TEST_CASE("ForecastResult carries horizon")

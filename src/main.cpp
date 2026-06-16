@@ -14,15 +14,13 @@
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2)
-    {
+    if (argc != 2) {
         std::println(stderr, "Usage: scenario_engine <csv_file>");
 
         return 1;
     }
 
-    TimeSeries series =
-        CsvLoader::load(argv[1]);
+    TimeSeries series = CsvLoader::load(argv[1]);
 
     std::println("Observations: {}", series.size());
     std::println("Mean:         {}", series.mean());
@@ -39,7 +37,7 @@ int main(int argc, char* argv[])
     std::println("");
 
     std::array<const Forecaster*, 2> models{&ma, &es};
-    std::array<std::size_t, 4>       horizons{1, 2, 3, 4};
+    std::array<std::size_t, 4> horizons{1, 2, 3, 4};
 
     Benchmark benchmark;
 
@@ -47,18 +45,15 @@ int main(int argc, char* argv[])
 
     // Print multi-horizon RMSE table
     std::string header = std::format("{:<30}", "Model");
-    for (const auto& row : table.front().by_horizon)
-    {
+    for (const auto& row : table.front().by_horizon) {
         header += std::format("  H={:<6}", row.horizon);
     }
     std::println("{}", header);
     std::println("{}", std::string(header.size(), '-'));
 
-    for (const auto& row : table)
-    {
+    for (const auto& row : table) {
         std::string line = std::format("{:<30}", row.model_label);
-        for (const auto& r : row.by_horizon)
-        {
+        for (const auto& r : row.by_horizon) {
             line += std::format("  {:<8.4f}", r.rmse);
         }
         std::println("{}", line);
@@ -68,10 +63,8 @@ int main(int argc, char* argv[])
 
     // Flatten all results and export to CSV
     std::vector<ModelEvaluationResult> flat;
-    for (const auto& row : table)
-    {
-        for (const auto& r : row.by_horizon)
-        {
+    for (const auto& row : table) {
+        for (const auto& r : row.by_horizon) {
             flat.push_back(r);
         }
     }
@@ -97,12 +90,13 @@ int main(int argc, char* argv[])
     double terminal_min = scenarios.front().value_at(scenarios.front().size() - 1);
     double terminal_max = terminal_min;
 
-    for (const auto& s : scenarios)
-    {
+    for (const auto& s : scenarios) {
         const double terminal = s.value_at(s.size() - 1);
         terminal_sum += terminal;
-        if (terminal < terminal_min) terminal_min = terminal;
-        if (terminal > terminal_max) terminal_max = terminal;
+        if (terminal < terminal_min)
+            terminal_min = terminal;
+        if (terminal > terminal_max)
+            terminal_max = terminal;
     }
 
     std::println("Scenarios:      {}", scenarios.size());

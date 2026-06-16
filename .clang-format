@@ -1,0 +1,49 @@
+---
+Language:        Cpp
+BasedOnStyle:    LLVM
+
+# Indentation
+IndentWidth:             4
+ContinuationIndentWidth: 4
+TabWidth:                4
+UseTab:                  Never
+AccessModifierOffset:    -4
+
+# Braces — function/class/namespace definitions break before brace;
+# control flow (if/for/while/try) attaches brace to same line.
+BreakBeforeBraces: Linux
+
+# Line length
+ColumnLimit: 100
+
+# Short constructs — never collapse onto one line (preserve structure)
+AllowShortBlocksOnASingleLine:     Empty
+AllowShortFunctionsOnASingleLine:  Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine:      false
+
+# Alignment
+AlignAfterOpenBracket:  BlockIndent
+AlignConsecutiveAssignments:
+  Enabled:           false
+AlignConsecutiveDeclarations:
+  Enabled:           false
+AlignOperands:      Align
+AlignTrailingComments:
+  Kind: Always
+
+# Pointers and references flush left: `const Foo& x`, `Foo* p`
+PointerAlignment:   Left
+ReferenceAlignment: Left
+
+# Spacing
+SpaceBeforeParens:       ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInAngles:          Never
+
+# Includes — do not reorder; project headers are already grouped correctly
+SortIncludes: Never
+
+# Penalty tuning — prefer breaking function args to long lines
+PenaltyBreakBeforeFirstCallParameter: 100
+PenaltyExcessCharacter: 10

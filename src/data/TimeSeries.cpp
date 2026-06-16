@@ -21,15 +21,13 @@ double TimeSeries::value_at(std::size_t index) const
 
 double TimeSeries::mean() const
 {
-    if (data_.empty())
-    {
+    if (data_.empty()) {
         return 0.0;
     }
 
     double total = 0.0;
 
-    for (const auto& obs : data_)
-    {
+    for (const auto& obs : data_) {
         total += obs.value;
     }
 
@@ -38,8 +36,7 @@ double TimeSeries::mean() const
 
 double TimeSeries::variance() const
 {
-    if (data_.size() < 2)
-    {
+    if (data_.size() < 2) {
         return 0.0;
     }
 
@@ -47,8 +44,7 @@ double TimeSeries::variance() const
 
     double sum = 0.0;
 
-    for (const auto& obs : data_)
-    {
+    for (const auto& obs : data_) {
         const double diff = obs.value - mu;
         sum += diff * diff;
     }
@@ -63,15 +59,13 @@ double TimeSeries::standard_deviation() const
 
 double TimeSeries::min() const
 {
-    if (data_.empty())
-    {
+    if (data_.empty()) {
         return 0.0;
     }
 
     double result = std::numeric_limits<double>::max();
 
-    for (const auto& obs : data_)
-    {
+    for (const auto& obs : data_) {
         result = std::min(result, obs.value);
     }
 
@@ -80,15 +74,13 @@ double TimeSeries::min() const
 
 double TimeSeries::max() const
 {
-    if (data_.empty())
-    {
+    if (data_.empty()) {
         return 0.0;
     }
 
     double result = std::numeric_limits<double>::lowest();
 
-    for (const auto& obs : data_)
-    {
+    for (const auto& obs : data_) {
         result = std::max(result, obs.value);
     }
 
@@ -102,12 +94,7 @@ const std::vector<Observation>& TimeSeries::observations() const
 
 SummaryStatistics TimeSeries::summary() const
 {
-    return {
-        .mean = mean(),
-        .variance = variance(),
-        .minimum = min(),
-        .maximum = max()
-    };
+    return {.mean = mean(), .variance = variance(), .minimum = min(), .maximum = max()};
 }
 
 TimeSeries TimeSeries::first_n(std::size_t n) const
@@ -116,8 +103,7 @@ TimeSeries TimeSeries::first_n(std::size_t n) const
 
     n = std::min(n, data_.size());
 
-    for (std::size_t i = 0; i < n; ++i)
-    {
+    for (std::size_t i = 0; i < n; ++i) {
         result.add(data_[i]);
     }
 

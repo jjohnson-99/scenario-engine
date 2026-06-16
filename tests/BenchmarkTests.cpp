@@ -14,8 +14,7 @@ TEST_CASE("Benchmark evaluates all models")
 {
     TimeSeries ts;
 
-    for (int i = 0; i < 20; ++i)
-    {
+    for (int i = 0; i < 20; ++i) {
         ts.add({{}, 100.0});
     }
 
@@ -35,8 +34,7 @@ TEST_CASE("Benchmark results are ranked by RMSE ascending")
 {
     TimeSeries ts;
 
-    for (int i = 0; i < 20; ++i)
-    {
+    for (int i = 0; i < 20; ++i) {
         ts.add({{}, 100.0});
     }
 
@@ -49,8 +47,7 @@ TEST_CASE("Benchmark results are ranked by RMSE ascending")
 
     auto results = benchmark.evaluate(models, ts);
 
-    for (std::size_t i = 1; i < results.size(); ++i)
-    {
+    for (std::size_t i = 1; i < results.size(); ++i) {
         REQUIRE(results[i - 1].rmse <= results[i].rmse);
     }
 }
@@ -59,8 +56,7 @@ TEST_CASE("Benchmark result carries model name")
 {
     TimeSeries ts;
 
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         ts.add({{}, 100.0});
     }
 

@@ -1,7 +1,6 @@
 #pragma once
 
-struct Residual
-{
+struct Residual {
     double actual{};
     double predicted{};
     double error{};

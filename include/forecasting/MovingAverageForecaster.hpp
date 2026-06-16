@@ -2,13 +2,10 @@
 
 #include "forecasting/Forecaster.hpp"
 
-class MovingAverageForecaster
-    : public Forecaster
+class MovingAverageForecaster : public Forecaster
 {
 public:
-    explicit MovingAverageForecaster(
-        std::size_t window,
-        std::size_t horizon = 1);
+    explicit MovingAverageForecaster(std::size_t window, std::size_t horizon = 1);
 
     std::string_view name() const override;
 

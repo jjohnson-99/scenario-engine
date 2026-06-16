@@ -1,7 +1,6 @@
 #pragma once
 
-struct ResidualStatistics
-{
+struct ResidualStatistics {
     double mean_error{};
     double variance{};
     double standard_deviation{};

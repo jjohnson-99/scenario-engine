@@ -35,8 +35,7 @@ TEST_CASE("Each scenario has history length plus horizon_steps observations")
     ScenarioGenerator sg{42};
     auto scenarios = sg.generate(model, ts, 5, 4);
 
-    for (const auto& s : scenarios)
-    {
+    for (const auto& s : scenarios) {
         REQUIRE(s.size() == 14);
     }
 }
@@ -49,10 +48,8 @@ TEST_CASE("Deterministic model produces identical scenarios")
     ScenarioGenerator sg{42};
     auto scenarios = sg.generate(model, ts, 5, 3);
 
-    for (std::size_t i = 1; i < scenarios.size(); ++i)
-    {
-        for (std::size_t t = 0; t < scenarios[i].size(); ++t)
-        {
+    for (std::size_t i = 1; i < scenarios.size(); ++i) {
+        for (std::size_t t = 0; t < scenarios[i].size(); ++t) {
             REQUIRE(scenarios[i].value_at(t) == Approx(scenarios[0].value_at(t)));
         }
     }
@@ -73,10 +70,8 @@ TEST_CASE("Stochastic model with fixed seed produces reproducible scenarios")
     ScenarioGenerator sg2{99};
     auto scenarios2 = sg2.generate(model, ts, 5, 3);
 
-    for (std::size_t i = 0; i < scenarios1.size(); ++i)
-    {
-        for (std::size_t t = 0; t < scenarios1[i].size(); ++t)
-        {
+    for (std::size_t i = 0; i < scenarios1.size(); ++i) {
+        for (std::size_t t = 0; t < scenarios1[i].size(); ++t) {
             REQUIRE(scenarios1[i].value_at(t) == Approx(scenarios2[i].value_at(t)));
         }
     }
@@ -97,10 +92,8 @@ TEST_CASE("Stochastic model produces varied scenarios")
     // With positive variance, the last simulated values should not all be identical
     double first_terminal = scenarios.front().value_at(scenarios.front().size() - 1);
     bool any_differ = false;
-    for (const auto& s : scenarios)
-    {
-        if (s.value_at(s.size() - 1) != first_terminal)
-        {
+    for (const auto& s : scenarios) {
+        if (s.value_at(s.size() - 1) != first_terminal) {
             any_differ = true;
             break;
         }
@@ -129,8 +122,7 @@ TEST_CASE("Zero horizon_steps returns copies of history")
     auto scenarios = sg.generate(model, ts, 3, 0);
 
     REQUIRE(scenarios.size() == 3);
-    for (const auto& s : scenarios)
-    {
+    for (const auto& s : scenarios) {
         REQUIRE(s.size() == ts.size());
     }
 }

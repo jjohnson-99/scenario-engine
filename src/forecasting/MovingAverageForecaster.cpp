@@ -3,37 +3,27 @@
 #include <format>
 #include <stdexcept>
 
-MovingAverageForecaster::MovingAverageForecaster(
-    std::size_t window,
-    std::size_t horizon)
-    : window_(window)
-    , horizon_(horizon)
+MovingAverageForecaster::MovingAverageForecaster(std::size_t window, std::size_t horizon)
+    : window_(window), horizon_(horizon)
 {
-    if (window_ == 0)
-    {
-        throw std::invalid_argument(
-            "Moving average window must be positive");
+    if (window_ == 0) {
+        throw std::invalid_argument("Moving average window must be positive");
     }
 
-    if (horizon_ == 0)
-    {
-        throw std::invalid_argument(
-            "Forecast horizon must be positive");
+    if (horizon_ == 0) {
+        throw std::invalid_argument("Forecast horizon must be positive");
     }
 }
 
 ForecastResult MovingAverageForecaster::forecast(const TimeSeriesView& series) const
 {
-    if (series.size() < window_)
-    {
-        throw std::runtime_error(
-            "Insufficient observations for forecast");
+    if (series.size() < window_) {
+        throw std::runtime_error("Insufficient observations for forecast");
     }
 
     double sum = 0.0;
 
-    for (const auto& obs : series.observations().last(window_))
-    {
+    for (const auto& obs : series.observations().last(window_)) {
         sum += obs.value;
     }
 

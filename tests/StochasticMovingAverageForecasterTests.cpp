@@ -32,7 +32,7 @@ TEST_CASE("StochasticMA constant series has zero variance after calibration")
 
     auto result = model.forecast(ts.view());
 
-    REQUIRE(result.mean     == Approx(50.0));
+    REQUIRE(result.mean == Approx(50.0));
     REQUIRE(result.variance == Approx(0.0));
 }
 
@@ -88,5 +88,5 @@ TEST_CASE("StochasticMA label and name")
     StochasticMovingAverageForecaster model(5);
 
     REQUIRE(model.label() == "StochasticMovingAverage(5)");
-    REQUIRE(model.name()  == "StochasticMovingAverage");
+    REQUIRE(model.name() == "StochasticMovingAverage");
 }

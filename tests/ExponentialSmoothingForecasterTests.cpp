@@ -16,14 +16,12 @@ TEST_CASE("Constant series")
 
     ExponentialSmoothingForecaster model(0.5);
 
-    REQUIRE(
-        model.forecast(ts.view()).mean == Approx(100.0));
+    REQUIRE(model.forecast(ts.view()).mean == Approx(100.0));
 }
 
 TEST_CASE("Invalid alpha")
 {
-    REQUIRE_THROWS(
-        ExponentialSmoothingForecaster(0.0));
+    REQUIRE_THROWS(ExponentialSmoothingForecaster(0.0));
 }
 
 TEST_CASE("ExponentialSmoothingForecaster Empty series")
@@ -32,6 +30,5 @@ TEST_CASE("ExponentialSmoothingForecaster Empty series")
 
     ExponentialSmoothingForecaster model(0.5);
 
-    REQUIRE_THROWS(
-        model.forecast(ts.view()));
+    REQUIRE_THROWS(model.forecast(ts.view()));
 }

@@ -12,22 +12,20 @@
 using Catch::Approx;
 
 static ModelEvaluationResult make_result(
-    std::string name,
-    std::size_t horizon,
-    double mae, double rmse, double bias,
-    double max_error, double mape, double error_std,
-    std::size_t count)
+    std::string name, std::size_t horizon, double mae, double rmse, double bias, double max_error,
+    double mape, double error_std, std::size_t count
+)
 {
     return {
-        .model_name       = std::move(name),
-        .mae              = mae,
-        .rmse             = rmse,
-        .bias             = bias,
-        .max_error        = max_error,
-        .mape             = mape,
-        .error_std        = error_std,
+        .model_name = std::move(name),
+        .mae = mae,
+        .rmse = rmse,
+        .bias = bias,
+        .max_error = max_error,
+        .mape = mape,
+        .error_std = error_std,
         .evaluation_count = count,
-        .horizon          = horizon
+        .horizon = horizon
     };
 }
 
@@ -48,9 +46,9 @@ TEST_CASE("CsvExporter writes correct header")
 TEST_CASE("CsvExporter writes one data row per result")
 {
     std::vector<ModelEvaluationResult> results = {
-        make_result("MA(3)",  1, 1.0, 1.5, 0.1, 3.0, 2.0, 0.8, 10),
-        make_result("MA(3)",  2, 1.2, 1.8, 0.2, 3.5, 2.2, 0.9, 9),
-        make_result("ES(0.3)",1, 0.9, 1.3, 0.0, 2.8, 1.8, 0.7, 10),
+        make_result("MA(3)", 1, 1.0, 1.5, 0.1, 3.0, 2.0, 0.8, 10),
+        make_result("MA(3)", 2, 1.2, 1.8, 0.2, 3.5, 2.2, 0.9, 9),
+        make_result("ES(0.3)", 1, 0.9, 1.3, 0.0, 2.8, 1.8, 0.7, 10),
     };
 
     std::ostringstream ss;
@@ -75,7 +73,7 @@ TEST_CASE("CsvExporter round-trips field values")
     const std::string output = ss.str();
 
     REQUIRE(output.find("MovingAverage(3)") != std::string::npos);
-    REQUIRE(output.find(",2,") != std::string::npos);  // horizon
+    REQUIRE(output.find(",2,") != std::string::npos);   // horizon
     REQUIRE(output.find(",15\n") != std::string::npos); // evaluation_count at end of row
 }
 

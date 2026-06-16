@@ -9,13 +9,7 @@
 class CsvExporter
 {
 public:
-    void write(
-        std::span<const ModelEvaluationResult> results,
-        std::ostream& out
-    ) const;
+    void write(std::span<const ModelEvaluationResult> results, std::ostream& out) const;
 
-    void write(
-        std::span<const ModelEvaluationResult> results,
-        const std::filesystem::path& path
-    ) const;
+    void write(std::span<const ModelEvaluationResult> results, const std::filesystem::path& path) const;
 };

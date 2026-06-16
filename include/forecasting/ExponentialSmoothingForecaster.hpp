@@ -2,13 +2,10 @@
 
 #include "forecasting/Forecaster.hpp"
 
-class ExponentialSmoothingForecaster
-    : public Forecaster
+class ExponentialSmoothingForecaster : public Forecaster
 {
 public:
-    explicit ExponentialSmoothingForecaster(
-        double alpha,
-        std::size_t horizon = 1);
+    explicit ExponentialSmoothingForecaster(double alpha, std::size_t horizon = 1);
 
     std::string_view name() const override;
 
