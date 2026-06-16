@@ -24,9 +24,7 @@ MovingAverageForecaster::MovingAverageForecaster(
 
 ForecastResult MovingAverageForecaster::forecast(const TimeSeriesView& series) const
 {
-    const auto& observations = series.observations();
-
-    if (observations.size() < window_)
+    if (series.size() < window_)
     {
         throw std::runtime_error(
             "Insufficient observations for forecast");
@@ -34,12 +32,9 @@ ForecastResult MovingAverageForecaster::forecast(const TimeSeriesView& series) c
 
     double sum = 0.0;
 
-    const std::size_t start =
-        observations.size() - window_;
-
-    for (std::size_t i = start; i < observations.size(); ++i)
+    for (const auto& obs : series.observations().last(window_))
     {
-        sum += observations[i].value;
+        sum += obs.value;
     }
 
     return {.mean = sum / static_cast<double>(window_), .variance = 0.0, .horizon = horizon_};

@@ -37,12 +37,14 @@ set(
     src/config/ConfigLoader.cpp
     src/forecasting/MovingAverageForecaster.cpp
     src/forecasting/ExponentialSmoothingForecaster.cpp
+    src/forecasting/StochasticMovingAverageForecaster.cpp
     src/evaluation/Backtester.cpp
     src/evaluation/Benchmark.cpp
     src/evaluation/CsvExporter.cpp
     src/evaluation/Metrics.cpp
     src/evaluation/ResidualAnalyzer.cpp
     src/evaluation/ResidualGenerator.cpp
+    src/simulation/ScenarioGenerator.cpp
 )
 
 # --------------------------------------------------
@@ -123,6 +125,8 @@ add_executable(
     tests/ResidualAnalyzerTests.cpp
     tests/ResidualSeriesTests.cpp
     tests/ResidualGeneratorTests.cpp
+    tests/StochasticMovingAverageForecasterTests.cpp
+    tests/ScenarioGeneratorTests.cpp
 )
 
 target_link_libraries(

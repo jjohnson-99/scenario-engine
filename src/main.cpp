@@ -7,8 +7,10 @@
 #include "data/CsvLoader.hpp"
 #include "forecasting/MovingAverageForecaster.hpp"
 #include "forecasting/ExponentialSmoothingForecaster.hpp"
+#include "forecasting/StochasticMovingAverageForecaster.hpp"
 #include "evaluation/Benchmark.hpp"
 #include "evaluation/CsvExporter.hpp"
+#include "simulation/ScenarioGenerator.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -80,6 +82,33 @@ int main(int argc, char* argv[])
     exporter.write(flat, csv_path);
 
     std::println("Results written to {}", csv_path.string());
+    std::println("");
+
+    // Monte Carlo scenario generation
+    StochasticMovingAverageForecaster sma(3);
+    sma.calibrate(series);
+
+    std::println("Calibrated variance: {:.6f}", sma.forecast(series.view()).variance);
+
+    ScenarioGenerator sg{42};
+    auto scenarios = sg.generate(sma, series, 100, 5);
+
+    double terminal_sum = 0.0;
+    double terminal_min = scenarios.front().value_at(scenarios.front().size() - 1);
+    double terminal_max = terminal_min;
+
+    for (const auto& s : scenarios)
+    {
+        const double terminal = s.value_at(s.size() - 1);
+        terminal_sum += terminal;
+        if (terminal < terminal_min) terminal_min = terminal;
+        if (terminal > terminal_max) terminal_max = terminal;
+    }
+
+    std::println("Scenarios:      {}", scenarios.size());
+    std::println("Terminal mean:  {:.4f}", terminal_sum / static_cast<double>(scenarios.size()));
+    std::println("Terminal min:   {:.4f}", terminal_min);
+    std::println("Terminal max:   {:.4f}", terminal_max);
 
     return 0;
 }
