@@ -14,7 +14,7 @@ over equivalent hand-written C. The language features below are that principle m
 
 ---
 
-## 1. Non-Owning Views: `std::string_view` and `std::span`
+## 1. Non-Owning Views: `std::string_view` *(C++17)* and `std::span` *(C++20)*
 
 These two types share a philosophy: a *view* is a non-owning, read-only window into data that
 someone else owns. The view itself is cheap to copy (two words: pointer + size) and involves no
@@ -157,7 +157,7 @@ modify it. This matters in concurrent code.
 
 ---
 
-## 2. Runtime Polymorphism: Virtual Dispatch, Abstract Base Classes, `override`
+## 2. Runtime Polymorphism: Virtual Dispatch, Abstract Base Classes *(C++98)*, `override` *(C++11)*
 
 `Forecaster` is the central abstraction. Every component that evaluates or generates scenarios
 takes a `const Forecaster&` — it does not know whether it holds a `MovingAverageForecaster`,
@@ -250,7 +250,7 @@ why `Backtester` and `ScenarioGenerator` take `const Forecaster&`, never `Foreca
 
 ---
 
-## 3. Designated Initializers
+## 3. Designated Initializers *(C++20)*
 
 ```cpp
 return {
@@ -287,7 +287,7 @@ support aggregate initialisation (braced-init with positional or designated fiel
 
 ---
 
-## 4. Default Member Initialization
+## 4. Default Member Initialization *(C++11)*
 
 ```cpp
 // In StochasticMovingAverageForecaster.hpp
@@ -326,7 +326,7 @@ bugs (a member that depends on another member that isn't initialized yet).
 
 ---
 
-## 5. `mutable` — Logical Const vs Bitwise Const
+## 5. `mutable` — Logical Const vs Bitwise Const *(C++98)*
 
 ```cpp
 // ScenarioGenerator.hpp
@@ -383,7 +383,7 @@ candidate knows the connection between `const` and the memory model.
 
 ---
 
-## 6. Move Semantics — `std::move` and Rvalue References
+## 6. Move Semantics — `std::move` and Rvalue References *(C++11)*
 
 ```cpp
 scenarios.push_back(std::move(path));
@@ -461,7 +461,7 @@ statement.
 
 ---
 
-## 7. `std::format`, `std::print`, `std::println` — Type-Safe Formatting
+## 7. `std::format` *(C++20)*, `std::print` / `std::println` *(C++23)* — Type-Safe Formatting
 
 ```cpp
 std::string label = std::format("MovingAverage({})", window_);
@@ -484,6 +484,32 @@ implementation). If `{}` does not match the argument type, the code does not com
 code is also typically faster than `ostringstream` because it writes directly into a preallocated
 buffer.
 
+**`std::print` / `std::println` are C++23 — what C++20 looks like instead.**
+
+`std::format` (C++20) produces a `std::string`. The C++23 additions `std::print` and
+`std::println` write that string directly to a stream, eliminating the intermediate object.
+In a C++20 codebase you would write:
+
+```cpp
+// C++23 — what this project uses:
+std::println("Observations: {}", series.size());
+std::println("Mean:         {}", series.mean());
+std::print(stderr, "Usage: scenario_engine <csv_file>\n");
+
+// C++20 equivalent — format produces a string, then cout writes it:
+std::cout << std::format("Observations: {}\n", series.size());
+std::cout << std::format("Mean:         {}\n", series.mean());
+std::cerr << "Usage: scenario_engine <csv_file>\n";
+```
+
+The difference is purely ergonomic — no allocation difference in practice, because the
+standard library implementations of `std::print` write directly to the file descriptor
+without constructing a `std::string`. The C++20 `cout + format` form allocates a temporary
+`std::string` on every call. So `std::print` is both more concise *and* slightly faster.
+
+Note also that `std::println` always appends `'\n'`, while `std::print` does not. This
+mirrors the `puts` vs `fputs` distinction from C — `println` is the common case.
+
 **The hard interview question: custom formatters.**
 `std::format` is extensible. Specialise `std::formatter<T>` for your type and it becomes
 formattable with `{}`. This replaces the `operator<<` pattern for formatting output. Custom
@@ -491,7 +517,7 @@ formatters can support format specifiers (e.g., `{:.4f}` for floating point prec
 
 ---
 
-## 8. `std::ranges::sort` with Projection
+## 8. `std::ranges::sort` with Projection *(C++20)*
 
 ```cpp
 std::ranges::sort(results, {}, &ModelEvaluationResult::rmse);
@@ -531,7 +557,7 @@ which compute nothing until iterated. `ranges::sort` is a range *algorithm*, not
 
 ---
 
-## 9. `std::chrono` — Type-Safe Time
+## 9. `std::chrono` — Type-Safe Time *(durations and time\_point: C++11 / `sys_days`, calendar: C++20)*
 
 ```cpp
 // Observation.hpp
@@ -564,7 +590,7 @@ timezone library (`std::chrono::year_month_day`, `std::chrono::zoned_time`) on t
 
 ---
 
-## 10. `<random>` — Engine/Distribution Separation
+## 10. `<random>` — Engine/Distribution Separation *(C++11)*
 
 ```cpp
 explicit ScenarioGenerator(unsigned seed = std::random_device{}());
@@ -639,7 +665,7 @@ fine. We guard against `σ = 0` (when variance is zero) because the standard say
 
 ---
 
-## 11. `static_cast` and Explicit Conversions
+## 11. `static_cast` and Explicit Conversions *(C++98)*
 
 ```cpp
 const double n = static_cast<double>(series.size());
@@ -670,7 +696,7 @@ dynamic type; use `static_cast` only when you are.
 
 ---
 
-## 12. `std::vector::reserve` and Container Growth
+## 12. `std::vector::reserve` and Container Growth *(C++98)*
 
 ```cpp
 scenarios.reserve(n_scenarios);
@@ -725,7 +751,7 @@ uninitialised positions.
 
 ---
 
-## 13. RAII — `std::ofstream`
+## 13. RAII — `std::ofstream` *(C++98)*
 
 ```cpp
 // CsvExporter.cpp — implicitly via the path overload
@@ -796,7 +822,7 @@ This last point is subtle and important: **mark move constructors `noexcept`**. 
 
 ---
 
-## 14. `std::ranges::transform` and `std::inner_product` — Separation of Concerns in Computation
+## 14. `std::ranges::transform` *(C++20)*, `std::inner_product` *(C++98)*, `std::ranges::fold_left` *(C++23)* — Separation of Concerns in Computation
 
 ```cpp
 // ResidualAnalyzer::acf()
@@ -914,25 +940,34 @@ std::ranges::transform(a, b, out.begin(), std::multiplies<double>{});
 This replaces `std::inner_product` when you need the element-wise products materialized rather
 than accumulated. Choosing between them depends on whether you need the intermediate values.
 
-**Follow-up: `std::ranges::fold_left` (C++23) as `inner_product`'s successor.**
+**Follow-up: `std::ranges::fold_left` (C++23) as the successor to `std::accumulate`.**
 
 C++23 adds `std::ranges::fold_left(range, init, op)`, the ranges-aware equivalent of
-`std::accumulate`. It produces more readable code for custom accumulations:
+`std::accumulate`. The current code uses `std::accumulate` (C++98) to compute the mean in `acf()`:
 
 ```cpp
-// C++23 — the intent is stated as a fold, not an accumulate:
-const double sum = std::ranges::fold_left(
-    residuals, 0.0,
-    [](double acc, const Residual& r) { return acc + r.error; });
+// C++20 — what the codebase currently uses (accumulate requires iterator pairs):
+const double mean =
+    std::accumulate(residuals.begin(), residuals.end(), 0.0,
+        [](double acc, const Residual& r) { return acc + r.error; })
+    / static_cast<double>(n);
+
+// C++23 equivalent — fold_left takes the range directly, no .begin()/.end():
+const double mean =
+    std::ranges::fold_left(residuals, 0.0,
+        [](double acc, const Residual& r) { return acc + r.error; })
+    / static_cast<double>(n);
 ```
 
-Unlike `std::accumulate`, `fold_left` does not require the iterator-pair form and is constrained.
-It will be the natural replacement for `std::accumulate` as the codebase moves fully to C++23
-ranges idioms.
+The `fold_left` form is consistent with `std::ranges::transform` — both take the container
+directly, no iterator pairs. It is also constrained: passing a type that does not satisfy
+`std::ranges::input_range` produces a concept-violation error rather than a deep template
+instantiation trace. The codebase is already on C++23 and could use `fold_left`; `std::accumulate`
+is kept here because it is the more familiar form in existing documentation and tutorials.
 
 ---
 
-## 15. Abstract Base Classes and the Non-Virtual Interface Pattern
+## 15. Abstract Base Classes and the Non-Virtual Interface Pattern *(C++98)*
 
 `Forecaster` currently uses pure virtual public functions. A common refinement is the
 **Non-Virtual Interface (NVI) pattern**:
@@ -1099,7 +1134,7 @@ not recursive calls.
 
 ---
 
-## D. `std::function<>` and Type Erasure — for `SimpleOptimizer`
+## D. `std::function<>` *(C++11)* and Type Erasure — for `SimpleOptimizer`
 
 **When it would arise.**
 
@@ -1133,7 +1168,7 @@ general technique independent of `std::function`.
 
 ---
 
-## E. `std::optional<T>` — representing absent values
+## E. `std::optional<T>` *(C++17)* — representing absent values
 
 **When it would arise.**
 A forecaster that requires more observations than the series contains cannot produce a result.
@@ -1161,7 +1196,7 @@ instead (a nullable pointer *is* an optional reference).
 
 ---
 
-## F. `std::variant<>` and `std::visit` — heterogeneous results
+## F. `std::variant<>` and `std::visit` *(C++17)* — heterogeneous results
 
 **When it would arise.** If the `Backtester` should return either a `ModelEvaluationResult` or
 a `std::string` error description (without exceptions), and you want the type system to enforce
@@ -1200,7 +1235,7 @@ types can be added without modifying existing code) — the Open/Closed Principl
 
 ---
 
-## G. Smart Pointers — when polymorphic ownership is needed
+## G. Smart Pointers *(`unique_ptr`/`shared_ptr`: C++11, `make_unique`: C++14)* — when polymorphic ownership is needed
 
 **Currently.** The project stores `Forecaster` pointers as non-owning raw pointers in
 `std::array<const Forecaster*, 2>`. The caller (main.cpp) owns the objects on the stack.
@@ -1231,7 +1266,7 @@ In almost all cases in this codebase, ownership is clear and `unique_ptr` is cor
 
 ---
 
-## H. `[[nodiscard]]` — preventing silently ignored results
+## H. `[[nodiscard]]` *(C++17)* — preventing silently ignored results
 
 **When it would arise.** `ForecastResult`, `ModelEvaluationResult`, and `ResidualStatistics` are
 all types that are meaningless to compute and then discard. Marking them (or the functions that
@@ -1258,7 +1293,7 @@ is more powerful but more invasive.
 
 ---
 
-## I. `constexpr` and `consteval` — compile-time computation
+## I. `constexpr` *(C++11, significantly extended in C++14/17/20)* and `consteval` *(C++20)* — compile-time computation
 
 **`constexpr` functions** can run at compile time if all their arguments are compile-time
 constants, or at runtime otherwise. C++20 significantly relaxes what is permitted in constexpr
@@ -1317,7 +1352,7 @@ column-major would be optimal.
 
 ---
 
-## K. `std::pmr` — Performance-Critical Allocation
+## K. `std::pmr` *(C++17)* — Performance-Critical Allocation
 
 **When it would arise.** Generating 10,000 scenarios, each copying a `TimeSeries` of 1,000
 observations, triggers 10,000 heap allocations for the internal `vector<Observation>` buffers.
