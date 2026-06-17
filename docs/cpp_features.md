@@ -1397,3 +1397,93 @@ In an interview, the strongest answers tie a specific language feature back to o
 principles and explain what the alternative (pre-feature) code looked like and why it was worse.
 The features themselves are easy to look up; understanding *why the language added them* is what
 separates candidates.
+
+---
+
+# Appendix — Standard Terminology
+
+Terms used throughout this document that the C++ standard defines precisely.
+
+---
+
+## Undefined Behaviour vs Unspecified Behaviour
+
+These are two different categories in the standard's taxonomy of "things we didn't pin down."
+
+**Undefined behaviour (UB)** — the standard places *no requirement whatsoever* on what happens.
+The compiler is allowed to assume UB never occurs, which means it can delete branches that would
+only be reachable via UB, reorder instructions across it, or produce output that bears no relation
+to what you wrote.
+
+The classic example: signed integer overflow is UB, so a compiler optimising `x + 1 > x`
+(where `x` is `int`) is allowed to conclude it is always `true` and eliminate the check entirely —
+because if it were ever `false`, that would require overflow, which is UB, which "can't happen."
+
+**Unspecified behaviour** — the standard narrows the outcome to a *set of valid possibilities*
+but does not say which one the implementation must choose. The program is still well-formed; you
+just cannot rely on a specific outcome.
+
+The example from this document: the moved-from state of a `std::vector` is "valid but unspecified."
+You know the destructor will run safely and you can reassign it, but the standard does not require
+it to be empty — every major implementation leaves it empty, but that is a stronger guarantee than
+the standard mandates.
+
+| | Undefined | Unspecified |
+|---|---|---|
+| Outcome | Anything — including appearing to work | One of a documented set of valid outcomes |
+| Program validity | Ill-formed (even if it compiles) | Well-formed |
+| Can you rely on it? | No — compiler can exploit the assumption it won't happen | No — but the result is still safe |
+| Example | Signed overflow, dangling pointer read | Moved-from vector contents, argument evaluation order |
+
+There is also a third category: **implementation-defined behaviour** — unspecified, but the
+implementation must document its choice. The size of `int` is implementation-defined: it varies,
+but your compiler's documentation must state the value.
+
+---
+
+## SSO — Small String Optimisation
+
+`std::string` normally stores its character data on the heap. But a heap allocation for a
+three-character string is wasteful — the bookkeeping overhead can exceed the payload.
+
+SSO is an optimisation where short strings are stored *inline inside the `std::string` object
+itself*, with no heap allocation. The object repurposes the bytes that would otherwise hold the
+heap pointer and capacity as a character buffer. Strings up to some threshold (typically 15
+characters on 64-bit systems) are stored this way; longer strings fall back to the heap.
+
+```cpp
+std::string short_str = "hello";   // stored inline — no heap allocation
+std::string long_str  = "this string is definitely longer than fifteen characters";  // heap
+```
+
+From the outside the two are indistinguishable — `.size()`, `.data()`, iteration all work the
+same. SSO is a pure implementation detail, which is why `std::string_view` is strictly better
+for read-only access: it avoids the object entirely.
+
+---
+
+## ABI-Dependent
+
+**ABI** (*Application Binary Interface*) is the low-level contract between compiled code and
+the system: how function arguments are passed in registers or on the stack, how classes are
+laid out in memory, how names are mangled in object files, how exceptions are represented at
+runtime.
+
+"ABI-dependent" means the value or behaviour is determined by what the compiler and standard
+library implementation chose — not by what the C++ standard mandates. The standard permits SSO
+and leaves the threshold unspecified; the actual number (15 on libstdc++, 15 on libc++, 15 on
+MSVC — but each independently chosen) is baked into the compiled binary.
+
+This matters in two practical ways:
+
+**Mixing ABIs breaks things.** A `std::string` compiled with one standard library passed to a
+function compiled with another may have a different internal layout — the receiver reads the wrong
+bytes for the length or data pointer. This is why you cannot freely mix a MSVC-compiled DLL with
+a Clang-compiled caller, or link a C++03 object file against a C++11 library that changed the
+`std::string` layout (the "ABI break" in GCC 5).
+
+**You cannot rely on implementation choices.** Code that assumes strings under 15 characters
+never allocate is making an ABI assumption that could break on a different compiler, platform,
+or future version of the same toolchain. The standard only guarantees the interface; the
+implementation is allowed to change the internals between releases — as long as it recompiles
+everything.
