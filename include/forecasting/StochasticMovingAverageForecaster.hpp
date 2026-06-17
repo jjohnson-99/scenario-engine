@@ -10,9 +10,10 @@ public:
 
     void calibrate(const TimeSeries& series);
 
+    ForecastResult forecast(const TimeSeriesView& series) const override;
+
     std::string_view name() const override;
     std::string label() const override;
-    ForecastResult forecast(const TimeSeriesView& series) const override;
     std::size_t minimum_observations() const override;
     std::size_t horizon() const override;
 
