@@ -1,6 +1,9 @@
 #include "evaluation/ResidualAnalyzer.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <numeric>
+#include <span>
 #include <stdexcept>
 
 ResidualStatistics ResidualAnalyzer::analyze(const ResidualSeries& series) const
@@ -58,26 +61,27 @@ AutocorrelationResult ResidualAnalyzer::acf(const ResidualSeries& series, std::s
     const auto& residuals = series.residuals();
     const std::size_t n = residuals.size();
 
-    double mean = 0.0;
-    for (const auto& r : residuals) {
-        mean += r.error;
-    }
-    mean /= static_cast<double>(n);
+    const double mean =
+        std::accumulate(residuals.begin(), residuals.end(), 0.0,
+            [](double acc, const Residual& r) { return acc + r.error; })
+        / static_cast<double>(n);
 
-    double denom = 0.0;
-    for (const auto& r : residuals) {
-        const double e = r.error - mean;
-        denom += e * e;
-    }
+    // Project each residual onto its centred deviation from the mean
+    std::vector<double> centred(n);
+    std::ranges::transform(residuals, centred.begin(),
+        [mean](const Residual& r) { return r.error - mean; });
+
+    // Total variance — shared denominator for every lag
+    const std::span<const double> c{centred};
+    const double denom = std::inner_product(c.begin(), c.end(), c.begin(), 0.0);
 
     const std::size_t lags = std::min(n_lags, n - 1);
     std::vector<double> result(lags);
 
     for (std::size_t k = 1; k <= lags; ++k) {
-        double num = 0.0;
-        for (std::size_t t = k; t < n; ++t) {
-            num += (residuals[t].error - mean) * (residuals[t - k].error - mean);
-        }
+        // Lag-k numerator: inner product of c[k:] and c[0:n-k]
+        const auto lagged = c.subspan(k);
+        const double num = std::inner_product(lagged.begin(), lagged.end(), c.begin(), 0.0);
         result[k - 1] = (denom > 0.0) ? num / denom : 0.0;
     }
 

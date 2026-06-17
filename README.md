@@ -31,7 +31,7 @@ Time Series
   ↓
 Forecasting Models
   ↓
-Backtesting
+Backtesting & Residual Diagnostics
   ↓
 Scenario Generation
   ↓
@@ -54,20 +54,29 @@ Potential applications include:
 
 ## Current Status
 
-The project is in an early development stage.
+The pipeline runs end-to-end from raw data through Monte Carlo scenario generation:
 
-Implemented components currently include:
+```text
+TimeSeries → Forecaster → calibrate() → ScenarioGenerator → vector<TimeSeries>
+                 ↓
+        ResidualGenerator → ResidualAnalyzer → ResidualStatistics
+                 ↓
+        Backtester → ModelEvaluationResult → Benchmark → CsvExporter
+```
 
-- Core `TimeSeries` abstraction
+Implemented components:
+
+- Core `TimeSeries` abstraction with descriptive statistics
 - CSV data loading
-- Descriptive statistics
-- Forecasting interface
-- Moving average forecasting
-- Exponential smoothing forecasting
-- Backtesting framework
-- Automated unit testing
-
-The implementation is expected to change significantly as the architecture evolves.
+- Forecasting interface (`Forecaster` abstract base class)
+- Moving average and exponential smoothing forecasters
+- Stochastic forecaster with `calibrate()` (learns residual variance from walk-forward backtest)
+- Multi-horizon backtesting framework (RMSE, MAE, MAPE, error std dev)
+- Multi-model benchmark with CSV export
+- Residual analysis: mean, variance, skewness, excess kurtosis
+- Autocorrelation function (ACF) and Ljung-Box test statistic
+- Monte Carlo scenario generation (`ScenarioGenerator`)
+- 55 unit tests (Catch2)
 
 ## Design Principles
 
@@ -84,110 +93,19 @@ The project is an opportunity to explore modern C++ development practices, inclu
 
 ### Clear Separation of Responsibilities
 
-Components should have well-defined responsibilities:
+Components have well-defined responsibilities:
 
 ```text
-Data Layer
-    ↓
-Analysis Layer
-    ↓
-Forecasting Layer
-    ↓
-Simulation Layer
-    ↓
-Optimization Layer
+Data Layer       — TimeSeries, Observation, CsvLoader
+Analysis Layer   — Backtester, Benchmark, ResidualAnalyzer, Metrics
+Forecasting Layer — Forecaster interface, concrete models
+Simulation Layer  — ScenarioGenerator
+Optimization Layer — (planned)
 ```
 
 ### Extensibility
 
-New forecasting models, simulation engines, and optimization strategies should be addable without modifying existing infrastructure.
-
-## Planned Architecture
-
-### Data
-
-Responsible for:
-
-- CSV ingestion
-- Configuration loading
-- Data validation
-- Future database integration
-
-### Statistics
-
-Responsible for:
-
-- Summary statistics
-- Distributions
-- Correlation analysis
-- Hypothesis testing
-
-### Forecasting
-
-Potential models include:
-
-- Moving averages
-- Exponential smoothing
-- Holt-Winters methods
-- State-space models
-- Bayesian forecasting approaches
-
-### Backtesting
-
-Responsible for:
-
-- Walk-forward validation
-- Forecast horizon evaluation
-- RMSE, MAE, and bias metrics
-- Model comparison
-
-### Simulation
-
-Planned capabilities:
-
-- Monte Carlo simulation
-- Bootstrapping
-- Scenario generation
-- Stress testing
-
-### Optimization
-
-Long-term goals include:
-
-- Deterministic optimization
-- Stochastic optimization
-- Constraint programming
-- Resource allocation problems
-
-## Example End-State Workflow
-
-```text
-Historical Data
-        ↓
-Forecast Model
-        ↓
-Backtest Evaluation
-        ↓
-Scenario Generation
-        ↓
-Optimization Engine
-        ↓
-Recommended Decision
-```
-
-For example:
-
-```text
-Historical demand
-        ↓
-Demand forecast
-        ↓
-Demand scenarios
-        ↓
-Inventory optimization
-        ↓
-Recommended inventory policy
-```
+New forecasting models, simulation engines, and optimization strategies are addable without modifying existing infrastructure. The `Forecaster` interface is the primary extension point.
 
 ## Roadmap
 
@@ -202,23 +120,43 @@ Recommended inventory policy
 
 ### Phase 2 — Evaluation
 
-- [ ] Forecast horizons
-- [ ] Additional metrics
-- [ ] Model comparison tools
-- [ ] Benchmark datasets
+- [x] Multi-horizon backtesting
+- [x] Additional metrics (RMSE, MAE, MAPE, error std dev)
+- [x] Model comparison and benchmarking
+- [x] CSV export of benchmark results
 
 ### Phase 3 — Simulation
 
-- [ ] Random process framework
-- [ ] Monte Carlo engine
-- [ ] Scenario generation
+- [x] Stochastic forecaster with calibration
+- [x] Monte Carlo scenario generation
+- [x] Residual diagnostics (skewness, kurtosis, ACF, Ljung-Box)
+- [ ] NoiseModel abstraction (Gaussian, Bootstrap)
+- [ ] Scenario fan analysis (percentile bands, VaR, CVaR)
 
 ### Phase 4 — Optimization
 
 - [ ] Optimization abstractions
 - [ ] Constraint definitions
-- [ ] Scenario-based optimization
+- [ ] Scenario-based optimization (SAA)
 - [ ] End-to-end workflows
+
+## Example End-State Workflow
+
+```text
+Historical Data
+        ↓
+Forecast Model (calibrated)
+        ↓
+Residual Diagnostics (validate noise assumptions)
+        ↓
+Scenario Generation (Monte Carlo fan)
+        ↓
+Scenario Fan Analysis (VaR, CVaR, percentile bands)
+        ↓
+Optimization Engine
+        ↓
+Recommended Decision
+```
 
 ## Motivation
 

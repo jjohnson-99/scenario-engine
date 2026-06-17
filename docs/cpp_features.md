@@ -796,7 +796,143 @@ This last point is subtle and important: **mark move constructors `noexcept`**. 
 
 ---
 
-## 14. Abstract Base Classes and the Non-Virtual Interface Pattern
+## 14. `std::ranges::transform` and `std::inner_product` — Separation of Concerns in Computation
+
+```cpp
+// ResidualAnalyzer::acf()
+std::vector<double> centred(n);
+std::ranges::transform(residuals, centred.begin(),
+    [mean](const Residual& r) { return r.error - mean; });
+
+const double denom = std::inner_product(c.begin(), c.end(), c.begin(), 0.0);
+
+const auto lagged = c.subspan(k);
+const double num = std::inner_product(lagged.begin(), lagged.end(), c.begin(), 0.0);
+```
+
+**What it is.** `std::ranges::transform` applies a callable to each element of an input range and
+writes the results to an output range. It is the C++20 ranges equivalent of `std::transform`, but
+takes a container directly (no iterator pairs) and is constrained — the template requires the input
+to satisfy `std::ranges::input_range` and the callable to satisfy `std::indirectly_unary_invocable`.
+
+`std::inner_product` (C++98, `<numeric>`) accumulates the sum of pairwise products of two
+equal-length ranges: `Σ a[i] * b[i]`. It generalises to a dot product.
+
+**Why the separation matters.**
+
+The original implementation of `acf()` fused all three concerns into a single nested loop:
+mean computation, centring, and lag-product accumulation. Separating them into
+distinct named steps makes each step independently readable and testable:
+
+```cpp
+// Old style — three concerns entangled in one loop:
+double mean = 0.0;
+for (const auto& r : residuals) mean += r.error;
+mean /= n;
+
+for (std::size_t k = 1; k <= lags; ++k) {
+    double num = 0.0;
+    for (std::size_t t = k; t < n; ++t) {
+        num += (residuals[t].error - mean) * (residuals[t - k].error - mean);
+    }
+    result[k - 1] = num / denom;
+}
+
+// New style — each step is a named operation:
+std::ranges::transform(residuals, centred.begin(),
+    [mean](const Residual& r) { return r.error - mean; });  // centring
+const double denom = std::inner_product(c.begin(), c.end(), c.begin(), 0.0);  // total variance
+const double num = std::inner_product(lagged.begin(), lagged.end(), c.begin(), 0.0);  // lag product
+```
+
+The new version reads as a description of the algorithm rather than an implementation of it.
+
+**`std::ranges::transform` vs `std::transform`.**
+
+```cpp
+// std::transform (C++98) — iterator pairs:
+std::transform(residuals.begin(), residuals.end(), centred.begin(),
+    [mean](const Residual& r) { return r.error - mean; });
+
+// std::ranges::transform (C++20) — takes the container, constrained, better errors:
+std::ranges::transform(residuals, centred.begin(),
+    [mean](const Residual& r) { return r.error - mean; });
+```
+
+Three differences:
+1. **No iterator pairs** — the ranges version takes the container directly, eliminating the
+   `.begin()`/`.end()` boilerplate.
+2. **Constrained** — if the callable's return type is not writable to the output iterator, the
+   compiler error names the violated concept, not a 50-line template instantiation trace.
+3. **Projection support** — `std::ranges::transform` has a four-argument overload with a projection
+   applied before the transform, enabling e.g. transforming only the value field without a lambda.
+
+**`std::ranges::transform` vs `std::views::transform`.**
+
+This is a common interview confusion:
+
+```cpp
+// std::ranges::transform — EAGER, writes to an output range immediately:
+std::ranges::transform(input, output.begin(), fn);   // output is filled now
+
+// std::views::transform — LAZY, produces a view, nothing computed until iterated:
+auto view = input | std::views::transform(fn);       // nothing computed yet
+for (auto x : view) { ... }                          // computed element-by-element here
+```
+
+`std::views::transform` is a *range adaptor* — it wraps the input and computes the transform
+on demand. It allocates nothing. Use it when you only need to iterate once and do not need to
+store the result. Use `std::ranges::transform` when you need a materialized output buffer (as
+here, because `inner_product` needs to read the centred values multiple times — once per lag).
+
+**`std::inner_product` and the accumulate family.**
+
+`std::inner_product(first1, last1, first2, init)` is equivalent to:
+```cpp
+double result = init;
+for (; first1 != last1; ++first1, ++first2)
+    result += (*first1) * (*first2);
+```
+
+It generalises via two additional overloads for custom addition and multiplication operations.
+Combined with `c.subspan(k)` (which gives `centred[k:]` as a zero-copy view), the lag-product
+computation becomes a single expression rather than a hand-written inner loop — and the `subspan`
+ensures no manual index arithmetic that could go off by one.
+
+**The hard interview question: `std::ranges::transform` with two input ranges.**
+
+The two-range overload transforms pairs of elements:
+
+```cpp
+std::vector<double> a = {1, 2, 3};
+std::vector<double> b = {4, 5, 6};
+std::vector<double> out(3);
+std::ranges::transform(a, b, out.begin(), std::multiplies<double>{});
+// out = {4, 10, 18}
+```
+
+This replaces `std::inner_product` when you need the element-wise products materialized rather
+than accumulated. Choosing between them depends on whether you need the intermediate values.
+
+**Follow-up: `std::ranges::fold_left` (C++23) as `inner_product`'s successor.**
+
+C++23 adds `std::ranges::fold_left(range, init, op)`, the ranges-aware equivalent of
+`std::accumulate`. It produces more readable code for custom accumulations:
+
+```cpp
+// C++23 — the intent is stated as a fold, not an accumulate:
+const double sum = std::ranges::fold_left(
+    residuals, 0.0,
+    [](double acc, const Residual& r) { return acc + r.error; });
+```
+
+Unlike `std::accumulate`, `fold_left` does not require the iterator-pair form and is constrained.
+It will be the natural replacement for `std::accumulate` as the codebase moves fully to C++23
+ranges idioms.
+
+---
+
+## 15. Abstract Base Classes and the Non-Virtual Interface Pattern
 
 `Forecaster` currently uses pure virtual public functions. A common refinement is the
 **Non-Virtual Interface (NVI) pattern**:
@@ -1216,10 +1352,11 @@ Every feature in Part 1 and Part 2 serves one or more of these principles:
 |---|---|
 | **Express ownership clearly** | `unique_ptr`, `shared_ptr`, `span` (non-owning), `string_view` (non-owning), `move` semantics |
 | **Make illegal states unrepresentable** | `chrono` strong types, `optional`, `expected`, `variant`, `nodiscard` |
-| **Zero-cost abstraction** | `span`, `string_view`, `ranges` projections, `constexpr`, `mdspan`, `unique_ptr` |
-| **Generic, reusable code without sacrificing type safety** | concepts, `template`, `function`, `visit` |
+| **Zero-cost abstraction** | `span`, `string_view`, `ranges` projections, `views::transform` (lazy), `constexpr`, `mdspan`, `unique_ptr` |
+| **Generic, reusable code without sacrificing type safety** | concepts, `template`, `function`, `visit`, `ranges::transform` (constrained) |
 | **Fail at compile time, not runtime** | `override`, designated initializers (order checked), `consteval` format strings, concepts |
 | **Resource safety without manual management** | RAII (`ofstream`, `unique_ptr`), `noexcept` on moves, `make_unique` |
+| **Separate concerns, compose operations** | `ranges::transform` (centring), `inner_product` (accumulation), `span::subspan` (windowing) |
 
 In an interview, the strongest answers tie a specific language feature back to one of these
 principles and explain what the alternative (pre-feature) code looked like and why it was worse.
